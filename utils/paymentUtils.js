@@ -41,7 +41,7 @@ export const initializePayment = async ({
         customer_phone: customerPhone,
       },
       order_meta: {
-        return_url: `http://localhost:5173/payment/response?order_id=${orderId}`,
+        return_url: `https://innotraniee.onrender.com/payment/response?order_id=${orderId}`,
       },
     };
 
