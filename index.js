@@ -30,6 +30,10 @@ export const instance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+
+app.get("/api/test", (req, res) => {
+  res.send("Hello, this is test route!");
+});
 app.use("/api/contact", contactRoutes);
 app.use("/api/c-verify", CVerifyRoute);
 app.use("/api/form", formSubmissionRoutes);
