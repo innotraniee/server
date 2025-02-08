@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 
 dotenv.config({});
 
-// Submit Project and Handle Payment Verification
 export const submitProject = async (req, res) => {
   try {
     const {
@@ -26,7 +25,6 @@ export const submitProject = async (req, res) => {
       });
     }
 
-    // Step 2: Verify Payment Signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
 
     const expectedSignature = crypto
@@ -41,7 +39,6 @@ export const submitProject = async (req, res) => {
       });
     }
 
-    // Step 3: Generate PDF
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
 
@@ -111,7 +108,6 @@ export const submitProject = async (req, res) => {
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(pdfOutputPath, pdfBytes);
 
-    // Step 4: Send email with PDF attachment
     const transporter = createTransporter();
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -137,17 +133,14 @@ export const submitProject = async (req, res) => {
       ],
     };
 
-    // Using 'once' instead of 'on' to ensure the listener is removed after email is sent
     await transporter.sendMail(mailOptions);
 
-    // Clean up and delete the PDF file after sending the email
     if (fs.existsSync(pdfOutputPath)) {
       fs.unlinkSync(pdfOutputPath);
     } else {
       console.warn(`File not found for deletion: ${pdfOutputPath}`);
     }
 
-    // Step 5: Save project submission to the database
     const newProjectSubmission = new ProjectSubmission({
       ...formData,
       cId,

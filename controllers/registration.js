@@ -115,7 +115,7 @@ export const submitForm = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: formData.emailAddress,
       subject: "Offer Letter | InnoTraniee Internship Program",
-      html: `Congratulations, ${name}! You've been selected for the InnoTraniee Internship Program
+      html: `Congratulations, <b>${name}</b>! You've been selected for the InnoTraniee Internship Program
       <div style="font-family: Arial, sans-serif; line-height: 1.6;">
         <p>We are pleased to inform you that you have been selected for the <strong>InnoTraniee Internship Program</strong>.</p>
         
@@ -151,7 +151,7 @@ export const submitForm = async (req, res) => {
         <p>If you have any questions or queries, feel free to contact us:</p>
         <ul>
           <li><strong>Email:</strong> <a href="mailto:innotraniee@gmail.com">innotraniee@gmail.com</a></li>
-          <li><strong>Website:</strong> <a href="">innotraniee</a></li>
+          <li><strong>Website:</strong> <a href="https://innotraniee.in/">innotraniee</a></li>
         </ul>
         
         <p>Best Regards, <br> Team InnoTraniee</p>

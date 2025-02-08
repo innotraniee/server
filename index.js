@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const corsOptions = {
-  origin: "https://innotraniee.onrender.com",
+  origin: "https://innotraniee.in",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 };
