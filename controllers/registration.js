@@ -75,15 +75,15 @@ export const submitForm = async (req, res) => {
     firstPage.drawText(preferredDomain, {
       x: 393,
       y: adjustedYFromTop(278.64),
-      size: 12,
+      size: 11,
       color: rgb(0, 0, 0),
       font: boldFont,
     });
 
     firstPage.drawText(formattedStartDate, {
-      x: 345.28,
+      x: 341.28,
       y: adjustedYFromTop(338.4),
-      size: 12,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
@@ -97,7 +97,7 @@ export const submitForm = async (req, res) => {
     firstPage.drawText(formattedEndDate, {
       x: 458.64,
       y: adjustedYFromTop(338.4),
-      size: 12,
+      size: 11,
       color: rgb(0, 0, 0),
     });
 
