@@ -95,7 +95,7 @@ export const submitForm = async (req, res) => {
     });
 
     firstPage.drawText(formattedEndDate, {
-      x: 458.64,
+      x: 450.64,
       y: adjustedYFromTop(338.4),
       size: 10,
       color: rgb(0, 0, 0),
