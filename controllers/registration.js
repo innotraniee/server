@@ -81,11 +81,10 @@ export const submitForm = async (req, res) => {
     });
 
     firstPage.drawText(formattedStartDate, {
-      x: 359.28,
+      x: 358.28,
       y: adjustedYFromTop(338.4),
       size: 12,
       color: rgb(0, 0, 0),
-      font: boldFont,
     });
 
     firstPage.drawText(formattedStartDate, {
@@ -121,6 +120,7 @@ export const submitForm = async (req, res) => {
         <p>We are pleased to inform you that you have been selected for the <strong>InnoTraniee Internship Program</strong>.</p>
         
         <h3 style="color: #0066cc;">Tasks/Projects Below</h3>
+        <h4 style="color: #0066cc;"><a href="https://innotraniee.in/projects">Click here to get projects</a> </h4>
         <p>Start your exciting journey with InnoTraniee by following the links below:</p>
         <ul>
           <li><strong>Follow our LinkedIn page</strong>: <a href="https://www.linkedin.com/company/innotraniee">Click here</a></li>
