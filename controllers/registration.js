@@ -60,7 +60,8 @@ export const submitForm = async (req, res) => {
 
     const formattedStartDate = formatDate(issueDate);
     const formattedEndDate = formatDate(oneMonthLater);
-
+    const name = formData.name;
+    const preferredDomain = formData.preferredDomain
     const adjustedYFromTop = (distanceFromTop) => pageHeight - distanceFromTop;
 
     firstPage.drawText(name, {
