@@ -81,7 +81,7 @@ export const submitForm = async (req, res) => {
     });
 
     firstPage.drawText(formattedStartDate, {
-      x: 358.28,
+      x: 353.28,
       y: adjustedYFromTop(338.4),
       size: 12,
       color: rgb(0, 0, 0),
