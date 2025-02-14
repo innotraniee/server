@@ -65,7 +65,7 @@ export const submitForm = async (req, res) => {
     const adjustedYFromTop = (distanceFromTop) => pageHeight - distanceFromTop;
 
     firstPage.drawText(name, {
-      x: 62.64,
+      x: 62.60,
       y: adjustedYFromTop(224.64),
       size: 12,
       color: rgb(0, 0, 0),
@@ -73,9 +73,9 @@ export const submitForm = async (req, res) => {
     });
 
     firstPage.drawText(preferredDomain, {
-      x: 393,
-      y: adjustedYFromTop(278.64),
-      size: 11,
+      x: 390,
+      y: adjustedYFromTop(279.64),
+      size: 10,
       color: rgb(0, 0, 0),
       font: boldFont,
     });
@@ -83,12 +83,12 @@ export const submitForm = async (req, res) => {
     firstPage.drawText(formattedStartDate, {
       x: 340.40,
       y: adjustedYFromTop(338.4),
-      size: 10,
+      size: 9,
       color: rgb(0, 0, 0),
     });
 
     firstPage.drawText(formattedStartDate, {
-      x: 458.64,
+      x: 448.64,
       y: adjustedYFromTop(223.2),
       size: 12,
       color: rgb(0, 0, 0),
@@ -97,19 +97,16 @@ export const submitForm = async (req, res) => {
     firstPage.drawText(formattedEndDate, {
       x: 450.64,
       y: adjustedYFromTop(338.4),
-      size: 10,
+      size: 9,
       color: rgb(0, 0, 0),
     });
 
-    // Prepare the output PDF path
     const pdfFilename = `${name.replace(/ /g, "_")}_Offer_Letter.pdf`;
     const pdfOutputPath = join(pdfDirectory, pdfFilename);
 
-    // Save the PDF to disk
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(pdfOutputPath, pdfBytes);
 
-    // Prepare email options
     const transporter = createTransporter();
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -120,7 +117,7 @@ export const submitForm = async (req, res) => {
         <p>We are pleased to inform you that you have been selected for the <strong>InnoTraniee Internship Program</strong>.</p>
         
         <h3 style="color: #0066cc;">Tasks/Projects Below</h3>
-        <h4 style="color: #0066cc;"><a href="https://innotraniee.in/projects">Click here to get projects</a> </h4>
+        <h4 style="color: #0066cc;"><a href="https://innotraniee.in/">Click here to get projects</a> go to internship tab and click on projects link</h4>
         <p>Start your exciting journey with InnoTraniee by following the links below:</p>
         <ul>
           <li><strong>Follow our LinkedIn page</strong>: <a href="https://www.linkedin.com/company/innotraniee">Click here</a></li>
