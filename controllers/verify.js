@@ -5,9 +5,10 @@ export const verify = async (req, res) => {
   if (!code) {
     return res.status(400).json({ valid: false, message: "Code is required" });
   }
+  const cId = code;
 
   try {
-    const certificate = await ProjectSubmission.findOne({ code });
+    const certificate = await ProjectSubmission.findOne({ cId });
 
     if (certificate) {
       return res.status(200).json({ valid: true, message: "Code is valid" });

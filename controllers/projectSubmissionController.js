@@ -4,7 +4,6 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { fileURLToPath } from "url";
 import path, { dirname, join } from "path";
 import createTransporter from "../utils/email.js";
-import crypto from "crypto";
 import dotenv from "dotenv";
 
 dotenv.config({});
@@ -12,108 +11,121 @@ dotenv.config({});
 export const submitProject = async (req, res) => {
   try {
     const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
+      order_id,
       ...formData
     } = req.body;
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID;
+    const CASHFREE_KEY_SECRET = process.env.CASHFREE_KEY_SECRET;
+    const CASHFREE_ENV = process.env.CASHFREE_ENV || "PRODUCTION";
+
+    if (!order_id) {
       return res.status(400).json({
         success: false,
         message: "Missing payment details. Please try again.",
       });
     }
 
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const cashfreeApiUrl =
+      CASHFREE_ENV === "PRODUCTION"
+        ? `https://api.cashfree.com/pg/orders/${order_id}`
+        : `https://sandbox.cashfree.com/pg/orders/${order_id}`;
 
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
-      .digest("hex");
+    const orderResponse = await fetch(cashfreeApiUrl, {
+      method: "GET",
+      headers: {
+        "x-client-id": CASHFREE_APP_ID,
+        "x-client-secret": CASHFREE_KEY_SECRET,
+        "x-api-version": "2022-09-01",
+        "Content-Type": "application/json",
+      },
+    });
 
-    if (expectedSignature !== razorpay_signature) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment verification failed. Invalid signature.",
+    const orderData = await orderResponse.json();
+    console.log("Order verification response:");
+
+    if (
+      orderData &&
+      (orderData.order_status === "PAID" || transaction_status === "SUCCESS")
+    ) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = dirname(__filename);
+
+      const pdfDirectory = join(__dirname, "pdfs");
+
+      if (!fs.existsSync(pdfDirectory)) {
+        fs.mkdirSync(pdfDirectory, { recursive: true });
+      }
+
+      const pdfTemplatePath = path.resolve("templates", "certificate.pdf");
+      const existingPdfBytes = fs.readFileSync(pdfTemplatePath);
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const pageHeight = firstPage.getHeight();
+
+      const adjustedYFromTop = (distanceFromTop) =>
+        pageHeight - distanceFromTop;
+      const { name, internshipDomain, cId, startDate, endDate } = formData;
+
+      const titleCaseName = name
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
+
+      firstPage.drawText(titleCaseName, {
+        x: 268.56,
+        y: adjustedYFromTop(250.04),
+        size: 35,
+        color: rgb(0, 0, 0),
+        font: boldFont,
       });
-    }
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
+      firstPage.drawText(internshipDomain, {
+        x: 320.0,
+        y: adjustedYFromTop(345.36),
+        size: 19,
+        color: rgb(0, 0, 0),
+        font: boldFont,
+      });
 
-    const pdfDirectory = join(__dirname, "pdfs");
+      firstPage.drawText(`${startDate} to`, {
+        x: 513.72,
+        y: adjustedYFromTop(367.36),
+        size: 12,
+        color: rgb(0, 0, 0),
+        font: boldFont,
+      });
 
-    if (!fs.existsSync(pdfDirectory)) {
-      fs.mkdirSync(pdfDirectory, { recursive: true });
-    }
+      firstPage.drawText(endDate, {
+        x: 592.84,
+        y: adjustedYFromTop(367.36),
+        size: 12,
+        color: rgb(0, 0, 0),
+        font: boldFont,
+      });
+      firstPage.drawText(cId, {
+        x: 478.08,
+        y: adjustedYFromTop(15.84),
+        size: 12,
+        color: rgb(0, 0, 0),
+        font: boldFont,
+      });
 
-    const pdfTemplatePath = path.resolve("templates", "certificate.pdf");
-    const existingPdfBytes = fs.readFileSync(pdfTemplatePath);
-    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const pages = pdfDoc.getPages();
-    const firstPage = pages[0];
-    const pageHeight = firstPage.getHeight();
+      const pdfFilename = `${name.replace(/ /g, "_")}_Certificate.pdf`;
+      const pdfOutputPath = join(pdfDirectory, pdfFilename);
+      const pdfBytes = await pdfDoc.save();
+      fs.writeFileSync(pdfOutputPath, pdfBytes);
 
-    const adjustedYFromTop = (distanceFromTop) => pageHeight - distanceFromTop;
-    const { name, internshipDomain, cId, startDate, endDate } = formData;
-
-    const titleCaseName = name
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    firstPage.drawText(titleCaseName, {
-      x: 268.56,
-      y: adjustedYFromTop(250.04),
-      size: 35,
-      color: rgb(0, 0, 0),
-      font: boldFont,
-    });
-
-    firstPage.drawText(internshipDomain, {
-      x: 320.0,
-      y: adjustedYFromTop(345.36),
-      size: 19,
-      color: rgb(0, 0, 0),
-      font: boldFont,
-    });
-
-    firstPage.drawText(`${startDate} to`, {
-      x: 513.72,
-      y: adjustedYFromTop(367.36),
-      size: 12,
-      color: rgb(0, 0, 0),
-      font: boldFont,
-    });
-
-    firstPage.drawText(endDate, {
-      x: 592.84,
-      y: adjustedYFromTop(367.36),
-      size: 12,
-      color: rgb(0, 0, 0),
-      font: boldFont,
-    });
-    firstPage.drawText(cId, {
-      x: 478.08,
-      y: adjustedYFromTop(15.84),
-      size: 12,
-      color: rgb(0, 0, 0),
-      font: boldFont,
-    });
-
-    const pdfFilename = `${name.replace(/ /g, "_")}_Certificate.pdf`;
-    const pdfOutputPath = join(pdfDirectory, pdfFilename);
-    const pdfBytes = await pdfDoc.save();
-    fs.writeFileSync(pdfOutputPath, pdfBytes);
-
-    const transporter = createTransporter();
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: formData.email,
-      subject: "Project Submission Confirmation | InnoTraniee",
-      html: `
+      const transporter = createTransporter();
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: formData.email,
+        subject: "Project Submission Confirmation | InnoTraniee",
+        html: `
   <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <h2 style="color: #2c3e50;">Dear ${formData.name},</h2>
     <p>Congratulations on successfully completing your internship with us as a role of ${formData.internshipDomain} from ${formData.startDate} to ${formData.endDate}.</p>
@@ -125,33 +137,40 @@ export const submitProject = async (req, res) => {
     <strong>Team InnoTraniee</strong></p>
   </div>
 `,
-      attachments: [
-        {
-          filename: pdfFilename,
-          path: pdfOutputPath,
-        },
-      ],
-    };
+        attachments: [
+          {
+            filename: pdfFilename,
+            path: pdfOutputPath,
+          },
+        ],
+      };
 
-    await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
 
-    if (fs.existsSync(pdfOutputPath)) {
-      fs.unlinkSync(pdfOutputPath);
+      if (fs.existsSync(pdfOutputPath)) {
+        fs.unlinkSync(pdfOutputPath);
+      } else {
+        console.warn(`File not found for deletion: ${pdfOutputPath}`);
+      }
+
+      const newProjectSubmission = new ProjectSubmission({
+        ...formData,
+        cId,
+      });
+
+      await newProjectSubmission.save();
+      transporter.setMaxListeners(20);
+
+      res.status(200).json({
+        success: true,
+        message: "Project submission successful!",
+      });
     } else {
-      console.warn(`File not found for deletion: ${pdfOutputPath}`);
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed.",
+      });
     }
-
-    const newProjectSubmission = new ProjectSubmission({
-      ...formData,
-      cId,
-    });
-
-    await newProjectSubmission.save();
-    transporter.setMaxListeners(20);
-
-    res
-      .status(200)
-      .json({ success: true, message: "Project submission successful!" });
   } catch (error) {
     console.error("Error submitting project:", error);
     res.status(500).json({ error: "Internal Server Error" });

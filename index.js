@@ -17,19 +17,27 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 const corsOptions = {
-  origin: "https://innotraniee.in",
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:5173",
+     "https://sdk.cashfree.com",
+      "https://sandbox.cashfree.com",
+      "https://innotraniee.in"
+    ];
+
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true); 
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
+  credentials: true, 
 };
 
 app.use(cors(corsOptions));
-
-export const instance = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
-
 
 app.get("/api/test", (req, res) => {
   res.send("Hello, this is test route!");
